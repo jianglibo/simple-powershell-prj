@@ -2,6 +2,8 @@
 # In the $Env:PSModulePath, create a folder named AscriptName, and put AscriptName.psm1 in it.
 # run sudo apt-get install linux-azure to get get-vm more details about vm. then reboot
 # get-vm | select -ExpandProperty networkadapters | select vmname, macaddress, switchname, ipaddresses
+# Maybe run "Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force" is necessary.
+
 Function Update-Hosts-File {
     [CmdletBinding()]
     param (
@@ -16,7 +18,13 @@ Function Update-Hosts-File {
             Select-Object -ExpandProperty ipaddresses | 
             Where-Object { $_ -match "^\d+\.\d+\.\d+\.\d+$" }
         }
-        "detected ip address is: $ipv4" | Write-Host
+        if (!$ipv4) {
+            "can not detect the ip address, maybe need to run 'apt-get install linux-azure' in the vm." | Write-Error
+            throw ''
+        }
+        else {
+            "detected ip address is: $ipv4" | Write-Host
+        }
     }
     PROCESS {
         $Content = Get-Content -Path $HostsFile | ForEach-Object -Process {
