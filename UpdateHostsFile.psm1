@@ -30,6 +30,9 @@ Function Update-Hosts-File {
         $Content = Get-Content -Path $HostsFile | ForEach-Object -Process {
             if ($_ -match "local-hyper-v") { $ipv4 + " " + "local-hyper-v" } else { $_ }
         }
+        if (-not (Test-Path -Path "${HostsFile}.bak")) {
+			Copy-Item -Path $HostsFile -Destination "${HostsFile}.bak"
+		}
         # $Content | Write-Host
         # $ipv4 | Write-Host
         Set-Content -Path $HostsFile -Value $Content
